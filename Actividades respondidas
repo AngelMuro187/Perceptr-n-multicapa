@@ -1,0 +1,83 @@
+Actividad 1 – Rellenar @modif@
+
+
+X = numeric_columns.drop('Employee_Satisfaction_Score', axis=1)
+y = numeric_columns['Employee_Satisfaction_Score']
+
+y = y.apply(lambda x: round(x) - 1)
+
+scaler = StandardScaler()
+X_standar = scaler.fit_transform(X)
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X_standar, y, test_size=0.33, random_state=42
+)
+
+y_onehot_train = tf.keras.utils.to_categorical(y_train, 5)
+y_onehot_test = tf.keras.utils.to_categorical(y_test, 5)
+
+Actividad 2 – 3 arquitecturas MLP distintas
+
+input_dim = X_standar.shape[1]
+
+model_mlp_1 = models.Sequential([
+    layers.Input(shape=(input_dim,)),
+    layers.Dense(32, activation='relu'),
+    layers.Dense(5, activation='softmax')
+])
+
+
+model_mlp_2 = models.Sequential([
+    layers.Input(shape=(input_dim,)),
+    layers.Dense(64, activation='relu'),
+    layers.Dropout(0.3),
+    layers.Dense(32, activation='relu'),
+    layers.Dense(5, activation='softmax')
+])
+
+
+model_mlp_3 = models.Sequential([
+    layers.Input(shape=(input_dim,)),
+    layers.Dense(128, activation='relu'),
+    layers.BatchNormalization(),
+    layers.Dense(64, activation='relu'),
+    layers.Dropout(0.4),
+    layers.Dense(32, activation='relu'),
+    layers.Dense(5, activation='softmax')
+])
+
+model_mlp_1.summary()
+model_mlp_2.summary()
+model_mlp_3.summary()
+
+Actividad 3 – Compilar y entrenar los tres modelos
+for model in [model_mlp_1, model_mlp_2, model_mlp_3]:
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+        loss='categorical_crossentropy',
+        metrics=['accuracy']
+    )
+
+hist_1 = model_mlp_1.fit(
+    X_train, y_onehot_train,
+    validation_data=(X_test, y_onehot_test),
+    epochs=30,
+    batch_size=32,
+    verbose=1
+)
+
+hist_2 = model_mlp_2.fit(
+    X_train, y_onehot_train,
+    validation_data=(X_test, y_onehot_test),
+    epochs=30,
+    batch_size=32,
+    verbose=1
+)
+
+hist_3 = model_mlp_3.fit(
+    X_train, y_onehot_train,
+    validation_data=(X_test, y_onehot_test),
+    epochs=30,
+    batch_size=32,
+    verbose=1
+)
